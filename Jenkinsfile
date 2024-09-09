@@ -1,9 +1,6 @@
 pipeline {
     agent any
-    parameters {
-        booleanParam(name: 'autoApprove', defaultValue: false, description: 'Automatically run apply after generating plan?')
-        choice(name: 'action', choices: ['apply', 'destroy'], description: 'Select the action to perform')
-    }
+
     
     environment {
         AWS_ACCESS_KEY_ID     = credentials('aws-access-key-id')
@@ -11,7 +8,7 @@ pipeline {
         GITHUB_TOKEN = credentials('git-token')
         AWS_DEFAULT_REGION    = 'us-west-2'
         ECR_REPOSITORY_NAME = 'sanket/new'
-
+        DOCKER_IMAGE_NAME = '010928201659.dkr.ecr.us-west-2.amazonaws.com/${ECR_REPOSITORY_NAME}'
         DOCKER_TAG = 'latest'
     }
     stages {
