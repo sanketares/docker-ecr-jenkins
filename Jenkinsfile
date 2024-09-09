@@ -47,58 +47,6 @@ pipeline {
             }
         }
 
-        stage('Terraform Init') {
-            steps {
-                sh 'terraform init'
-            }
-        }
-
-        stage('Terraform Plan') {
-            steps {
-                sh 'terraform plan -out=tfplan'
-                sh 'terraform show -no-color tfplan > tfplan.txt'
-                sh 'terraform graph | dot -Tpng > plan.png'
-                archiveArtifacts artifacts: 'tfplan.txt, plan.png', allowEmptyArchive: true
-            }
-        }
-
-        stage('Manual Approval') {
-            steps {
-                script {
-                    def userInput = input(
-                        id: 'approval',
-                        message: 'Approve the creation of the resources?',
-                        ok: 'Approve',
-                    )
-                    
-                }
-            }
-        }
-
-        stage('Terraform Apply') {
-            when {
-                expression { params.action == 'apply' }
-            }
-            steps {
-                script {
-                    if (params.autoApprove) {
-                        sh 'terraform apply -auto-approve tfplan'
-                    } else {
-                        sh 'terraform apply tfplan'
-                    }
-                }
-            }
-        }
-
-        stage('Terraform Destroy') {
-            when {
-                expression { params.action == 'destroy' }
-            }
-            steps {
-                sh 'terraform destroy --auto-approve'
-            }
-        }
-    }
-
+    
 
 }
