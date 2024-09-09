@@ -14,8 +14,12 @@ pipeline {
         DOCKER_IMAGE_NAME = 'your-ecr-account-id.dkr.ecr.us-west-2.amazonaws.com/${ECR_REPOSITORY_NAME}'
         DOCKER_TAG = 'latest'
     }
-
-
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/sanketares/Task-2.git'
+            }
+        }
 
         stage('Build Docker Image') {
             steps {
