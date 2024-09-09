@@ -15,12 +15,7 @@ pipeline {
         DOCKER_TAG = 'latest'
     }
 
-    stages {
-        stage('Checkout') {
-            steps {
-                git branch: 'main', url: 'https://github.com/sanketares/docker-ecr-jenkins'
-            }
-        }
+
 
         stage('Build Docker Image') {
             steps {
