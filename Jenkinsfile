@@ -1,46 +1,38 @@
 pipeline {
     agent any
-
     
     environment {
-        AWS_ACCESS_KEY_ID     = credentials('aws-access-key-id')
-        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
-        GITHUB_TOKEN = credentials('git-token')
-        AWS_DEFAULT_REGION    = 'us-west-2'
-        ECR_REPOSITORY_NAME = 'sanket/new'
-        DOCKER_IMAGE_NAME = '010928201659.dkr.ecr.us-west-2.amazonaws.com/${ECR_REPOSITORY_NAME}'
-        DOCKER_TAG = 'latest'
+        AWS_REGION = 'us-east-1'
+        ECR_REPO = 'sanket/new'
+        AWS_ACCOUNT_ID = '010928201659'
+        URL_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
     }
-    stages {
-        stage('Checkout') {
+    
+    stages { 
+        stage('SCM Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/sanketares/docker-ecr-jenkins'
+                git branch: 'main', url: 'https://github.com/sanketares/docker-ecr-jenkins.git'
             }
         }
-
-        stage('Build Docker Image') {
+        
+        stage('Build and Push Docker Image') {
             steps {
                 script {
-                    // Build the Docker image
-                    docker.build("${DOCKER_IMAGE_NAME}:${DOCKER_TAG}")
-                }
-            }
-        }
+                    withCredentials([usernamePassword(credentialsId: 'ecr-demo-credentials', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
+                        // Login to ECR
+                        sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${URL_REGISTRY}"
 
-        stage('Push Docker Image') {
-            steps {
-                script {
-                     withCredentials([usernamePassword(credentialsId: 'aws-credentials-id', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
-                        sh '''
-                        $(aws ecr get-login-password --region ${AWS_DEFAULT_REGION} | docker login --username AWS --password-stdin ${DOCKER_IMAGE_NAME})
-                        '''
-                        
-                        // Push the Docker image
-                        docker.image("${DOCKER_IMAGE_NAME}:${DOCKER_TAG}").push("${DOCKER_TAG}")
+                        // Build Docker image
+                        sh "docker build -t $ECR_REPO ."
+
+                        // Tag Docker image
+                        sh "docker tag $ECR_REPO:latest ${URL_REGISTRY}/$ECR_REPO:latest"
+
+                        // Push Docker image to ECR
+                        sh "docker push ${URL_REGISTRY}/$ECR_REPO:latest"
                     }
                 }
             }
         }
-
     }
 }
