@@ -1,21 +1,14 @@
-
-# Use an official Node.js runtime as a parent image
-FROM node:14
+# Use an official lightweight base image
+FROM alpine:latest
 
 # Set the working directory in the container
 WORKDIR /app
 
-# Copy package.json and package-lock.json files
-COPY package*.json ./
+# Copy a shell script into the container
+COPY hello.sh .
 
-# Install dependencies
-RUN npm install
+# Make the script executable
+RUN chmod +x hello.sh
 
-# Copy the rest of the application code
-COPY . .
-
-# Expose port 3000
-EXPOSE 3000
-
-# Define the command to run the app
-CMD ["npm", "start"]
+# Define the command to run the script
+CMD ["./hello.sh"]
