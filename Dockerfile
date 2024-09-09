@@ -1,5 +1,7 @@
 # Use an official lightweight base image
-FROM alpine:latest
+FROM ubuntu:latest
+
+RUN yum install -y httpd
 
 # Set the working directory in the container
 WORKDIR /app
