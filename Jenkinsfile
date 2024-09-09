@@ -6,6 +6,8 @@ pipeline {
         ECR_REPO = 'sanket/new'
         AWS_ACCOUNT_ID = '010928201659'
         URL_REGISTRY = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+        AWS_ACCESS_KEY_ID = credentials('aws-access-key-id')
+        AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
     }
     
     stages { 
@@ -18,19 +20,17 @@ pipeline {
         stage('Build and Push Docker Image') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'ecr-demo-credentials', usernameVariable: 'AWS_ACCESS_KEY_ID', passwordVariable: 'AWS_SECRET_ACCESS_KEY')]) {
-                        // Login to ECR
-                        sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${URL_REGISTRY}"
+                    // Login to ECR
+                    sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${URL_REGISTRY}"
 
-                        // Build Docker image
-                        sh "docker build -t $ECR_REPO ."
+                    // Build Docker image
+                    sh "docker build -t $ECR_REPO ."
 
-                        // Tag Docker image
-                        sh "docker tag $ECR_REPO:latest ${URL_REGISTRY}/$ECR_REPO:latest"
+                    // Tag Docker image
+                    sh "docker tag $ECR_REPO:latest ${URL_REGISTRY}/$ECR_REPO:latest"
 
-                        // Push Docker image to ECR
-                        sh "docker push ${URL_REGISTRY}/$ECR_REPO:latest"
-                    }
+                    // Push Docker image to ECR
+                    sh "docker push ${URL_REGISTRY}/$ECR_REPO:latest"
                 }
             }
         }
