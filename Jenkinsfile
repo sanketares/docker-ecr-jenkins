@@ -1,12 +1,15 @@
 pipeline {
     agent any
+    parameters {
+        booleanParam(name: 'autoApprove', defaultValue: false, description: 'Automatically run apply after generating plan?')
+        choice(name: 'action', choices: ['apply', 'destroy'], description: 'Select the action to perform')
+    }
     
     environment {
-        // AWS credentials and region
         AWS_ACCESS_KEY_ID     = credentials('aws-access-key-id')
         AWS_SECRET_ACCESS_KEY = credentials('aws-secret-access-key')
-        AWS_DEFAULT_REGION    = 'us-west-2'
         GITHUB_TOKEN = credentials('git-token')
+        AWS_DEFAULT_REGION    = 'us-west-2'
         ECR_REPOSITORY_NAME = 'sanket/new'
         DOCKER_IMAGE_NAME = 'your-ecr-account-id.dkr.ecr.us-west-2.amazonaws.com/${ECR_REPOSITORY_NAME}'
         DOCKER_TAG = 'latest'
@@ -97,8 +100,5 @@ pipeline {
         }
     }
 
-    parameters {
-        choice(name: 'action', choices: ['apply', 'destroy'], description: 'Choose whether to apply or destroy the Terraform configuration')
-        booleanParam(name: 'autoApprove', defaultValue: false, description: 'Automatically approve Terraform apply')
-    }
+
 }
