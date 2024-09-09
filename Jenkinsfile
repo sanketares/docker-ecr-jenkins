@@ -12,6 +12,7 @@ pipeline {
         AWS_DEFAULT_REGION    = 'us-west-2'
         ECR_REPOSITORY_NAME = 'sanket/new'
         DOCKER_IMAGE_NAME = '010928201659.dkr.ecr.us-west-2.amazonaws.com/${ECR_REPOSITORY_NAME}'
+
         DOCKER_TAG = 'latest'
     }
     stages {
